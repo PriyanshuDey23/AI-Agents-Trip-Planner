@@ -71,9 +71,7 @@ inputs = {
 - Day-by-day itinerary with activities and dining options
 - Itemized budget plan
 
-## 📚 Requirements
-- Python 3.8+
-- Google Gemini API access (API key)
+
 
 ## 📬 Contact
 For questions, feel free to reach out via [your email/contact link].
