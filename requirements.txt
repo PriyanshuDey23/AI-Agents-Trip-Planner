@@ -1,3 +1,6 @@
 crewai
 python-dotenv
 streamlit
+crewai-tools
+duckduckgo-search
+newspaper4k

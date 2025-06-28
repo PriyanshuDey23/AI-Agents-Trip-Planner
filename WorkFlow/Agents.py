@@ -1,6 +1,9 @@
 from crewai import Agent, Task, Crew, LLM
+from WorkFlow.Tools import duckduckgo_search,fetch_article
 import os
 from dotenv import load_dotenv
+
+
 
 # Load environment variables
 load_dotenv()
@@ -8,6 +11,12 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Initialize LLM model
 Model = LLM(model='gemini/gemini-2.0-flash', api_key=GOOGLE_API_KEY)
+
+
+# Tool for web search and article search
+search_tool = duckduckgo_search
+fetch_tool=fetch_article
+
 
 
 # ----------- TripAgents Class -----------
@@ -25,6 +34,8 @@ class TripAgents:
                 "with in-depth knowledge of cultural, historical, and entertainment aspects."
             ),
             llm=self.llm,
+            reasoning=True,
+            tools=[search_tool,fetch_tool],
             verbose=True
         )
 
@@ -38,6 +49,8 @@ class TripAgents:
                 "and uncovering secret spots known only to locals."
             ),
             llm=self.llm,
+            reasoning=True,
+            tools=[search_tool,fetch_tool],
             verbose=True
         )
 
@@ -51,6 +64,8 @@ class TripAgents:
                 "and unforgettable itineraries for travelers of all styles."
             ),
             llm=self.llm,
+            reasoning=True,
+            tools=[search_tool,fetch_tool],
             verbose=True
         )
 
@@ -64,6 +79,8 @@ class TripAgents:
                 "and unforgettable experiences."
             ),
             llm=self.llm,
+            reasoning=True,
+            tools=[search_tool,fetch_tool],
             verbose=True
         )
 
@@ -147,7 +164,7 @@ class TripTasks:
 
 
 
-# ----------- TripCrew Class -----------
+# ------------- Trip Crew Manager -------------
 class TripCrew:
     def __init__(self, inputs):
         self.inputs = inputs
@@ -178,26 +195,79 @@ class TripCrew:
 
 
         result = crew.kickoff()
-        
-       # Use the tasks_output attribute (a list of TaskOutput objects) to build a dictionary.
-        if hasattr(result, "tasks_output"):
-            tasks_list = result.tasks_output
-            final_result = {
-                "city_selection": tasks_list[0].raw if len(tasks_list) > 0 else "❌ No city selection found.",
-                "city_research": tasks_list[1].raw if len(tasks_list) > 1 else "❌ No city research found.",
-                "itinerary": tasks_list[2].raw if len(tasks_list) > 2 else "❌ No itinerary generated.",
-                "budget": tasks_list[3].raw if len(tasks_list) > 3 else "❌ No budget breakdown available."
-            }
-        else:
-            final_result = {}
-        
-        # Log detailed raw outputs to the console (for debugging)
-        print("Crew kickoff raw result:", result)
-        if hasattr(result, "tasks_output"):
-            for idx, task in enumerate(result.tasks_output):
-                print(f"Task {idx} raw output:", task)
-        
-        return final_result
+        return result
+
+# Function for  this use case
+def display_trip_results(result):
+    """
+    Parse CrewAI trip planning results into a structured dictionary.
+
+    Returns:
+        dict: A dictionary where keys are task names (snake_case) and values are cleaned result text.
+    """
+    final_result = {}
+
+    if hasattr(result, "tasks_output") and result.tasks_output:
+        for task in result.tasks_output:
+            task_name_key = task.name.lower().replace(" ", "_")
+            cleaned_content = task.raw.strip("`") if task.raw else "No content available."
+            final_result[task_name_key] = cleaned_content
+    else:
+        # Return empty result if no tasks or outputs
+        final_result = {}
+
+    return final_result
+
+
+
+# Function to display trip results dynamically (Maximum use case)
+# def display_trip_results(result):
+#     """
+#     Display CrewAI trip planning results dynamically in Streamlit.
+#     """
+#     if hasattr(result, "tasks_output") and result.tasks_output:
+#         final_result = {}
+
+#         # Build final_result dict dynamically based on task names
+#         for task in result.tasks_output:
+#             task_name_key = task.name.lower().replace(" ", "_")
+#             final_result[task_name_key] = task.raw
+
+#         # Display each result section in Streamlit
+#         st.title("🗺️ Trip Planning Results")
+
+#         for key, content in final_result.items():
+#             section_title = key.replace("_", " ").title()
+#             st.subheader(f"📌 {section_title}")
+
+#             if content:
+#                 # Clean up any extra triple backticks
+#                 cleaned_content = content.strip("`")
+#                 st.markdown(cleaned_content)
+#             else:
+#                 st.warning(f"❌ No result found for {section_title}.")
+
+#         return final_result
+
+#     else:
+#         st.error("❌ No task outputs found in the Crew result.")
+#         return {}
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
 
 
         
