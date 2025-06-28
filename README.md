@@ -1,7 +1,7 @@
 
 # 📖 AI-Agents-Trip-Planner
 
-![](output.png)
+![](1.png)
 
 ## 📌 Overview
 
